@@ -4,11 +4,11 @@
 * @returns {string[]}
 */
 export function sortStrings(arr, param = 'asc') {
-  let result = [...arr].sort((a, b) =>
-    a.localeCompare(b, 'ru-en-u-kf-upper'));
-  return param === "asc" ? result : result.reverse();
+  if (param === "asc") {
+    return [...arr].sort((a, b) => a.localeCompare(b, 'ru-en-u-kf-upper'));
+  }
+  return [...arr].sort((a, b) => b.localeCompare(a, 'ru-en-u-kf-upper'));
 }
-
 
 
 
