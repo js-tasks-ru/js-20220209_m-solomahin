@@ -5,4 +5,14 @@
  */
 export function createGetter(path) {
 
+  const pathMas = path.split('.');
+  return function (obj) {
+    let value = obj;
+    pathMas.forEach(item => {
+      value && (value = new Map(Object.entries(value)).get(item));
+    });
+    return value;
+
+  };
 }
+
