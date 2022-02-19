@@ -9,7 +9,9 @@ export function createGetter(path) {
   return function (obj) {
     let value = obj;
     pathMas.forEach(item => {
-      value && (value = new Map(Object.entries(value)).get(item));
+      if (value) {
+        value = value[item];
+      }
     });
     return value;
 
