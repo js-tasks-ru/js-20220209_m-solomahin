@@ -5,6 +5,7 @@
  * @returns {string} - the new string without extra symbols according passed size
  */
 export function trimSymbols(string, size = string.length) {
+
   let dem = string.split("");
 
   let i = 0;
@@ -17,16 +18,16 @@ export function trimSymbols(string, size = string.length) {
   }
 
   let trimString = "";
-  let cycleСounter = 0;
+  let startIndex = 0;
   for (const i of dem) {
     let counter = 0;
-    let idx = string.indexOf(i, cycleСounter);
+    let idx = string.indexOf(i, startIndex);
     while (idx !== -1 && counter++ < size) {
       trimString += i;
       idx = string[idx + 1] === i ? idx + 1 : -1;
-      cycleСounter++;
+      startIndex++;
     }
   }
+
   return trimString;
 }
-
