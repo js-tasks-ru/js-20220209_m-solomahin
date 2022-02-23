@@ -52,4 +52,5 @@ export default class ColumnChart {
     dashboardChart.innerHTML = this.getTemplate();
     this.element = dashboardChart;
   }
+  
 }
