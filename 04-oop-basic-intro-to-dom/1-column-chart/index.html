@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>ColumnChart</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
-    <link rel="shortcut icon" href="#">
   </head>
   <body>
     <div class="dashboard__charts">
@@ -15,6 +14,7 @@
 
     <script type = "module" >
       import ColumnChart from "./index.js"
+
       const ordersData = [];
       const salesData = [ 30, 40, 20, 80, 35, 15 ];
       const customersData = [ 100, 90, 80, 35, 90, 25 ];
@@ -30,15 +30,18 @@
         data: salesData,
         label: 'sales',
         value: 243437,
-        formatHeading: data => `$ ${data}`
+        formatHeading: data => `$${data}`
       });
 
-      const customersChart = new ColumnChart();
+      const customersChart = new ColumnChart({
+        data: customersData,
+        label: 'customers',
+        value: 321
+      });
 
       orders.append(ordersChart.element);
       sales.append(salesChart.element);
       customers.append(customersChart.element);
-
     </script>
   </body>
 </html>
