@@ -12,7 +12,11 @@ export default class NotificationMessage {
     this.text = text
     this.duration = duration
     this.type = type
+    this.render();
   }
+
+  static countNotification = 0;
+  static notificationId = 0
 
   getTemplate() {
     return `
@@ -25,19 +29,27 @@ export default class NotificationMessage {
     </div>`;
   }
 
-  show() {
-    const elem = document.querySelectorAll(".notification");
-    if(elem)  {
-      for(const item of elem) {
-        item.style.display = "none";
-      }
+  show(targetTag) {
+    if (NotificationMessage.notificationId && NotificationMessage.countNotification) {
+      document.getElementById((NotificationMessage.notificationId-1).toString()).remove();
+    }
+    this.element.id = NotificationMessage.notificationId++;
+
+    if (targetTag) {
+      targetTag.append(this.element);
+    }
+    else {
+      document.body.append(this.element);
     }
 
-    const element = document.createElement(`div`);
-    element.innerHTML = this.getTemplate();
-    this.element = element.firstElementChild;
-    document.body.append(this.element);
-    setTimeout(() => this.remove(), this.duration)
+
+    NotificationMessage.countNotification++;
+    if (this.duration !== 0) {
+    setTimeout(() => {
+      this.remove();
+      NotificationMessage.countNotification--;
+      }
+      , this.duration)}
   }
 
   remove() {
@@ -48,5 +60,12 @@ export default class NotificationMessage {
 
   destroy() {
     this.remove();
+  }
+
+  render () {
+    const element = document.createElement(`div`);
+    element.innerHTML = this.getTemplate();
+    this.element = element.firstElementChild;
+
   }
 }
