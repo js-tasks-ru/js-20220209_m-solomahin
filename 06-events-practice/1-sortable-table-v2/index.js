@@ -1,13 +1,21 @@
+//import {logEntryPolyfills} from "@babel/preset-env/lib/debug";
+
 export default class SortableTable {
-  constructor(
-    headerConfig = [],
-    data = []
-    ) {
+  constructor(headerConfig, {
+                data = [],
+                sorted = {}
+              } = {}
+  ) {
     this.data = data
     this.headerConfig = headerConfig
+    this.sorted = sorted
 
     this.render();
+    this.initEventListeners()
+
+    this.isSortLocally()
   }
+  isSortLocally(){}
 
   element;
   subElements = {}
@@ -41,25 +49,25 @@ export default class SortableTable {
     return `
         ${this.headerConfig.map((item) => {
           return `${this.getHeaderColumn(item)}`
-        }).join("")}`
+    }).join("")}`
   }
 
   getHeaderColumn (item){
     return `
       <div class="sortable-table__cell" data-id=${item.id} data-sortable=${item.sortable}>
         <span>${item.title}</span>
-          <span data-element="arrow" class="sortable-table__sort-arrow">
-            <span class="sort-arrow"></span>
-          </span>
+        <span data-element="arrow" class="sortable-table__sort-arrow">
+          <span class="sort-arrow"></span>
+        </span>
       </div>`
   }
 
- getBody() {
-  return `
+  getBody() {
+    return `
    <div data-element="body" class="sortable-table__body">
      ${this.getTableRows(this.data)}
    </div>`
- }
+  }
 
   getTableRows (data) {
     return data.map((item) => {
@@ -94,24 +102,41 @@ export default class SortableTable {
 
     this.subElements = this.getSubElements(element);
 
+    const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id = "${this.sorted.id}"]`);
+    this.sort(this.sorted.id, this.sorted.order,[], currentColumn);
+
   }
 
-  sort(field, order) {
+  initEventListeners() {
+    const btnHeaderSort = this.element.querySelector(".sortable-table__header");
+    btnHeaderSort.addEventListener('pointerdown', this.handleClick);
+  }
+
+  handleClick = e => {
+
+    if (e.target.closest(".sortable-table__cell").dataset.sortable === 'true') {
+
+      let target = e.target.closest("div");
+      const setDirection = target.dataset.order === "desc" ? "asc" : "desc";
+      const allColumn = e.target.closest(".sortable-table__header").children
+      const currentColumn = e.target.closest(".sortable-table__cell")
+
+      this.sort(target.dataset.id, setDirection, [...allColumn], currentColumn)
+    }
+  }
+
+  sort(field, order, allColumn = [], currentColumn) {
     const sortedData = this.sortData(field, order);
-
-    this.subElements.body.innerHTML = this.getTableRows(sortedData)
-
     const elem = this.element.querySelector(".sortable-table__body")
-    elem.innerHTML = this.getTableRows(sortedData)
-
-    const allColumn = this.element.querySelectorAll(".sortable-table__cell[data-id]");
-    const currentColumn = this.element.querySelector(`.sortable-table__cell[data-id = "${field}"]`);
 
     allColumn.forEach(column => {
       column.dataset.order = "";
     })
-    currentColumn.dataset.order = order;
 
+    currentColumn.dataset.order = currentColumn.dataset.sortable === "true" ? order : "";
+    this.subElements.body.innerHTML = this.getTableRows(sortedData)
+
+    elem.replaceWith = this.subElements.body
   }
 
   sortData(field, order) {
@@ -136,10 +161,10 @@ export default class SortableTable {
           return dem * (a[field] - b[field]);
       }
     })
-
   }
 
   getSubElements(element) {
+
     const result = {};
     const elements = element.querySelectorAll("[data-element]");
 
@@ -165,3 +190,4 @@ export default class SortableTable {
   }
 
 }
+
