@@ -73,13 +73,13 @@
 
   root.append(sortableTable.element);
 
-
   sort.addEventListener('click', () => {
     const fieldValue = field.value;
     const orderValue = order.value;
 
     sortableTable.sort(fieldValue, orderValue);
   });
+
   root.append(sortableTable.element);
 
 

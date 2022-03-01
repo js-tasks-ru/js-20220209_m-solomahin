@@ -1,4 +1,5 @@
 export default class SortableTable {
+
   constructor(
     headerConfig = [],
     data = []
@@ -165,3 +166,4 @@ export default class SortableTable {
   }
 
 }
+
