@@ -1,5 +1,3 @@
-//import {logEntryPolyfills} from "@babel/preset-env/lib/debug";
-
 export default class SortableTable {
   constructor(headerConfig, {
                 data = [],
@@ -15,6 +13,7 @@ export default class SortableTable {
 
     this.isSortLocally()
   }
+
   isSortLocally(){}
 
   element;
