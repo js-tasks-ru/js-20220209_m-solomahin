@@ -1,3 +1,4 @@
+
 export default class SortableTable {
   constructor(headerConfig, {
                 data = [],
@@ -130,7 +131,6 @@ export default class SortableTable {
 
   sortOnClient(field, order, allColumn = [], currentColumn) {
     const sortedData = this.sortData(field, order);
-    const elem = this.element.querySelector(".sortable-table__body")
 
     allColumn.forEach(column => {
       column.dataset.order = "";
@@ -138,8 +138,6 @@ export default class SortableTable {
 
     currentColumn.dataset.order = currentColumn.dataset.sortable === "true" ? order : "";
     this.subElements.body.innerHTML = this.getTableRows(sortedData)
-
-    elem.replaceWith = this.subElements.body
   }
 
   sortData(field, order) {
