@@ -8,13 +8,10 @@ export default class SortableTable {
     this.headerConfig = headerConfig
     this.sorted = sorted
 
+    this.isSortLocally = true
     this.render();
     this.initEventListeners()
-
-    this.isSortLocally()
   }
-
-  isSortLocally(){}
 
   element;
   subElements = {}
@@ -112,19 +109,26 @@ export default class SortableTable {
   }
 
   handleClick = e => {
+    const currentColumn = e.target.closest(".sortable-table__cell")
+    if (currentColumn.dataset.sortable === 'true') {
 
-    if (e.target.closest(".sortable-table__cell").dataset.sortable === 'true') {
-
-      let target = e.target.closest("div");
+      const target = e.target.closest("div");
       const setDirection = target.dataset.order === "desc" ? "asc" : "desc";
       const allColumn = e.target.closest(".sortable-table__header").children
-      const currentColumn = e.target.closest(".sortable-table__cell")
 
       this.sort(target.dataset.id, setDirection, [...allColumn], currentColumn)
     }
   }
 
-  sort(field, order, allColumn = [], currentColumn) {
+  sort (field, order, allColumn = [], currentColumn) {
+    if (this.isSortLocally) {
+      this.sortOnClient(field, order, allColumn = [], currentColumn);
+    } else {
+      this.sortOnServer();
+    }
+  }
+
+  sortOnClient(field, order, allColumn = [], currentColumn) {
     const sortedData = this.sortData(field, order);
     const elem = this.element.querySelector(".sortable-table__body")
 
@@ -162,6 +166,10 @@ export default class SortableTable {
     })
   }
 
+  sortOnServer (){
+
+  }
+
   getSubElements(element) {
 
     const result = {};
@@ -173,7 +181,6 @@ export default class SortableTable {
     }
 
     return result
-
   }
 
   remove() {
