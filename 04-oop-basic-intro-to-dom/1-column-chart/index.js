@@ -10,7 +10,7 @@ export default class ColumnChart {
     this.data = data;
     this.value = formatHeading(value);
     this.link = link;
- 
+
     this.render();
   }
 
@@ -37,19 +37,6 @@ export default class ColumnChart {
             </div>
           </div>
       </div>`;
-  }
-
-  getSubElements(element) {
-    const result = {};
-    const elements = element.querySelectorAll('[data-element]');
-
-    for (const subElement of elements) {
-      const name = subElement.dataset.element;
-
-      result[name] = subElement;
-    }
-
-    return result;
   }
 
   update (arr = []){

@@ -1,5 +1,8 @@
 class Tooltip {
+
   element;
+  distanceFromCursor = 10;
+
   static currentTooltip = null;
   constructor(){
     if(!Tooltip.currentTooltip){
@@ -23,26 +26,27 @@ class Tooltip {
 
     document.addEventListener('pointerover', this.showTooltip)
     document.addEventListener('pointerout', this.deleteTooltip)
-    document.addEventListener('mousemove', this.moveTooltip)
   }
 
-  showTooltip = e => {
-    if (e.target.dataset.tooltip === undefined) return;
+  showTooltip = event => {
+    if (event.target.dataset.tooltip === undefined) return;
     if (Tooltip.currentTooltip) Tooltip.currentTooltip.remove();
 
-    this.element.style.left = (e.pageX + 10) + "px";
-    this.element.style.top = (e.pageY + 10) + "px";
+    document.addEventListener('mousemove', this.moveTooltip);
+
+    this.element.style.left = (event.pageX + this.distanceFromCursor) + "px";
+    this.element.style.top = (event.pageY + this.distanceFromCursor) + "px";
     this.element.style.display = "block"
-    this.element.innerHTML = e.target.dataset.tooltip;
+    this.element.innerHTML = event.target.dataset.tooltip;
 
     Tooltip.currentTooltip = this.element
     document.body.append(this.element)
   }
 
-  moveTooltip = e => {
+  moveTooltip = event => {
       if (Tooltip.currentTooltip) {
-        this.element.style.left = (e.pageX + 10) + "px";
-        this.element.style.top = (e.pageY + 10) + "px";
+        this.element.style.left = (event.pageX + this.distanceFromCursor) + "px";
+        this.element.style.top = (event.pageY + this.distanceFromCursor) + "px";
       }
   }
 
