@@ -3,6 +3,7 @@ import fetchJson from './utils/fetch-json.js';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class ColumnChart {
+
   chartHeight = 50;
   element;
   subElements;
@@ -122,4 +123,5 @@ export default class ColumnChart {
   destroy() {
     this.remove();
   }
+
 }
