@@ -13,18 +13,19 @@ export default class SortableTable {
 
   constructor(
     headerConfig = [],
-    isSortLocally = false,
-    data = [],
     {url = '',
-    sorted = {
-      id: headerConfig.find(item => item.sortable).id,
-      order: 'asc'}
-    } = {}) {
-    this.data = data
+     data = [],
+     sorted = {
+        id: headerConfig.find(item => item.sortable).id,
+        order: 'asc'},
+     isSortLocally = false
+     } = {}) {
+
     this.headerConfig = headerConfig
-    this.sorted = sorted
-    this.url = url
     this.isSortLocally = isSortLocally
+    this.url = url
+    this.data = data
+    this.sorted = sorted
     this.render();
     this.sort(this.sorted.id, this.sorted.order);
   }
@@ -70,7 +71,6 @@ export default class SortableTable {
 
   getHeaderArrow (id) {
     const isOrderExist = this.sorted.id === id ? this.sorted.order : '';
-
     return isOrderExist
       ? `<span data-element="arrow" class="sortable-table__sort-arrow">
           <span class="sort-arrow"></span>
@@ -79,7 +79,6 @@ export default class SortableTable {
   }
 
   getTableRows (data) {
-
     return data.map((item) => {
       return `
           <a href="/products/${item.id}" class="sortable-table__row">
@@ -95,7 +94,6 @@ export default class SortableTable {
         template
       };
     });
-
 
     return cells.map(({id,template}) => {
       return template
@@ -123,7 +121,6 @@ export default class SortableTable {
   }
 
   addProduct = async () => {
-
     let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
 
     if (windowRelativeBottom < document.documentElement.clientHeight + this.distanceToBorder) {
@@ -143,7 +140,6 @@ export default class SortableTable {
   }
 
   handleClick = event => {
-
     const currentColumn = event.target.closest(".sortable-table__cell")
 
     const toggleOrder = order => {
@@ -174,7 +170,6 @@ export default class SortableTable {
 
     this.subElements.body.style.display = "none"
     this.subElements.loading.style.display = "block"
-    //console.log("sort", order)
 
     const sortedData = this.isSortLocally ? this.sortOnClient(id, order) : await this.sortOnServer(id, order);
 
