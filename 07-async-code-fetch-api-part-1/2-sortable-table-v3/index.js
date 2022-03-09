@@ -33,7 +33,6 @@ export default class SortableTable {
   getTemplate(data = []) {
     return `
     <div class="sortable-table">
-
       ${this.getHeader()}
       <div data-element="body" class="sortable-table__body"></div>
       <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
@@ -102,8 +101,9 @@ export default class SortableTable {
     }).join("")
   }
 
-  render() {
+  async render() {
     const {id, order} = this.sorted;
+
     const wrapper = document.createElement(`div`);
     wrapper.innerHTML = this.getTemplate();
     this.element = wrapper.firstElementChild;
@@ -238,6 +238,7 @@ export default class SortableTable {
     this.remove();
     this.element = null;
     this.subElements = {}
+    document.removeEventListener('scroll', window);
   }
 
 }
