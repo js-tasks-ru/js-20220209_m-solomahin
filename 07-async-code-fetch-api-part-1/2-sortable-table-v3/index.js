@@ -1,33 +1,41 @@
+import fetchJson from './utils/fetch-json.js';
+
+const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class SortableTable {
-  constructor(headerConfig = [], {
-                data = [],
-                sorted = {
-                  id: headerConfig.find(item => item.sortable).id,
-                  order: 'asc'
-                }
-              } = {}
-  ) {
+
+  element;
+  subElements = {};
+  start = 0;
+  end = 30;
+  delta = 30;
+  distanceToBorder = 1;
+
+  constructor(
+    headerConfig = [],
+    isSortLocally = false,
+    data = [],
+    {url = '',
+    sorted = {
+      id: headerConfig.find(item => item.sortable).id,
+      order: 'asc'}
+    } = {}) {
     this.data = data
     this.headerConfig = headerConfig
     this.sorted = sorted
-
-    this.isSortLocally = true
+    this.url = url
+    this.isSortLocally = isSortLocally
     this.render();
+    this.sort(this.sorted.id, this.sorted.order);
   }
 
-  element;
-  subElements = {}
-
-  getTemplate(data) {
+  getTemplate(data = []) {
     return `
     <div class="sortable-table">
 
       ${this.getHeader()}
-      ${this.getBody(data)};
-
+      <div data-element="body" class="sortable-table__body"></div>
       <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
-
       <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
         <div>
           <p>No products satisfies your filter criteria</p>
@@ -47,7 +55,7 @@ export default class SortableTable {
   getHeaderRow(){
     return `
         ${this.headerConfig.map((item) => {
-          return `${this.getHeaderColumn(item)}`
+      return `${this.getHeaderColumn(item)}`
     }).join("")}`
   }
 
@@ -70,14 +78,8 @@ export default class SortableTable {
       : '';
   }
 
-  getBody(data) {
-    return `
-   <div data-element="body" class="sortable-table__body">
-     ${this.getTableRows(data)}
-   </div>`
-  }
-
   getTableRows (data) {
+
     return data.map((item) => {
       return `
           <a href="/products/${item.id}" class="sortable-table__row">
@@ -105,22 +107,43 @@ export default class SortableTable {
   render() {
     const {id, order} = this.sorted;
     const wrapper = document.createElement(`div`);
-    const sortedData = this.sortData(id, order);
-    wrapper.innerHTML = this.getTemplate(sortedData);
+    wrapper.innerHTML = this.getTemplate();
+    this.element = wrapper.firstElementChild;
 
-    const element = wrapper.firstElementChild;
-    this.element = element;
-
-    this.subElements = this.getSubElements(element);
-
+    this.subElements = this.getSubElements(this.element);
     this.initEventListeners()
+    this.subElements.body.style.display = "none"
+    this.subElements.loading.style.display = "block"
   }
 
   initEventListeners() {
     this.subElements.header.addEventListener('pointerdown', this.handleClick);
+    if (!this.isSortLocally) {
+    window.addEventListener("scroll", this.addProduct)}
+  }
+
+  addProduct = async () => {
+
+    let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
+
+    if (windowRelativeBottom < document.documentElement.clientHeight + this.distanceToBorder) {
+      this.subElements.loading.style.display = "block"
+      this.increaseBorders()
+
+      const additionalData = await this.loadData()
+
+      this.subElements.body.insertAdjacentHTML("beforeend", this.getTableRows(additionalData))
+      this.subElements.loading.style.display = "none"
+    }
+  }
+
+  increaseBorders () {
+    this.start += this.delta
+    this.end += this.delta
   }
 
   handleClick = event => {
+
     const currentColumn = event.target.closest(".sortable-table__cell")
 
     const toggleOrder = order => {
@@ -131,27 +154,53 @@ export default class SortableTable {
       return orders[order];
     };
 
-    if (currentColumn.dataset.sortable === 'true') {
-
+    if (currentColumn.dataset.sortable) {
       const { id, order } = currentColumn.dataset;
-
       const newOrder = toggleOrder(order);
+      this.sorted.id = id
+      this.sorted.order = newOrder
 
-      const sortedData = this.sortData(id, newOrder);
       const arrow = currentColumn.querySelector('.sortable-table__sort-arrow');
       currentColumn.dataset.order = newOrder;
 
       if (!arrow) {
         currentColumn.append(this.subElements.arrow);
       }
-
-      this.subElements.body.innerHTML = this.getTableRows(sortedData);
+      this.sort(id,newOrder)
     }
   }
 
-  sortData(field, order) {
+  async sort(id, order) {
+
+    this.subElements.body.style.display = "none"
+    this.subElements.loading.style.display = "block"
+    //console.log("sort", order)
+
+    const sortedData = this.isSortLocally ? this.sortOnClient(id, order) : await this.sortOnServer(id, order);
+
+    if (sortedData.length === 0) {
+      this.subElements.emptyPlaceholder.style.display = "block"
+    }
+
+    this.subElements.body.innerHTML = this.getTableRows(sortedData)
+
+    this.subElements.body.style.display = "block"
+    this.subElements.loading.style.display = "none"
+
+  }
+
+  async sortOnServer(id,order) {
+    return await this.loadData(id,order)
+  }
+
+  async loadData(id = this.sorted.id,order = this.sorted.order) {
+    return await fetchJson(BACKEND_URL + '/' + this.url +
+      `?_sort=${id}&_order=${order}&_start=${this.start}&_end=${this.end}`)
+  }
+
+  sortOnClient(id, order) {
     const arr = [...this.data];
-    const column = this.headerConfig.find(item => item.id === field)
+    const column = this.headerConfig.find(item => item.id === id)
     const { sortType } = column
 
     const direction = {
@@ -164,25 +213,23 @@ export default class SortableTable {
     return arr.sort((a, b) => {
       switch (sortType) {
         case "string":
-          return dem * a[field].localeCompare(b[field], 'ru-en-u-kf-upper');
+          return dem * a[id].localeCompare(b[id], 'ru-en-u-kf-upper');
         case "number":
-          return dem * (a[field] - b[field]);
+          return dem * (a[id] - b[id]);
         default:
-          return dem * (a[field] - b[field]);
+          return dem * (a[id] - b[id]);
       }
     })
   }
 
   getSubElements(element) {
-
-    const result = {};
+    const result = [];
     const elements = element.querySelectorAll("[data-element]");
 
     for (const subElement of elements) {
       const name = subElement.dataset.element;
       result[name] = subElement;
     }
-
     return result
   }
 
@@ -199,4 +246,5 @@ export default class SortableTable {
   }
 
 }
+
 
