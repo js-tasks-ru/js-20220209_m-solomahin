@@ -26,12 +26,12 @@ export default class ProductForm {
   getTemplate(products, categories) {
     return `
     <div class="product-form">
-      <form data-element="productForm" class="form-grid">
+      <form data-element="productForm" name = "tmp" class="form-grid">
 
         <div class="form-group form-group__half_left">
           <fieldset>
             <label class="form-label">Название товара</label>
-            <input required="" type="text" name="title" class="form-control" placeholder="Название товара" value = '${products.title ? products.title : ''}'>
+            <input required="" type="text" id="title" class="form-control" placeholder="Название товара" value = '${products.title}'>
           </fieldset>
         </div>
 
@@ -40,9 +40,9 @@ export default class ProductForm {
           <textarea
             required=""
             class="form-control"
-            name="description"
+            id="description"
             data-element="productDescription"
-            placeholder="Описание товара">${products.description ? products.description : ''}</textarea>
+            placeholder="Описание товара">${products.description}</textarea>
         </div>
 
         <div class="form-group form-group__wide" data-element="sortable-list-container">
@@ -63,24 +63,24 @@ export default class ProductForm {
         <div class="form-group form-group__half_left form-group__two-col">
           <fieldset>
             <label class="form-label">Цена ($)</label>
-            <input required="" type="number" name="price" class="form-control" placeholder="100" value = "${products.price}">
+            <input required="" type="number" id="price" class="form-control" placeholder="100" value = "${products.price}">
           </fieldset>
           <fieldset>
             <label class="form-label">Скидка ($)</label>
-            <input required="" type="number" name="discount" class="form-control" placeholder="0" value = "${products.discount}">
+            <input required="" type="number" id="discount" class="form-control" placeholder="0" value = "${products.discount}">
           </fieldset>
         </div>
 
         <div class="form-group form-group__part-half">
           <label class="form-label">Количество</label>
-          <input required="" type="number" class="form-control" name="quantity" placeholder="1" value = "${products.quantity}">
+          <input required="" type="number" class="form-control" id="quantity" placeholder="1" value = "${products.quantity}">
         </div>
 
         <div class="form-group form-group__part-half">
           <label class="form-label">Статус</label>
-          <select class="form-control" name="status">
-            <option ${products.value === 0 ? "" : "selected"} value="1">Активен</option>
-            <option ${products.value === 0 ? `selected` : ""} value="0">Неактивен</option>
+          <select class="form-control" id="status">
+            <option value="1">Активен</option>
+            <option value="0">Неактивен</option>
           </select>
         </div>
 
@@ -97,7 +97,7 @@ export default class ProductForm {
 
   getSelectCategories(categories) {
     return `
-    <select class="form-control" name="subcategory">
+    <select class="form-control" id="subcategory">
       ${categories.map((item) => {
       return item.subcategories.map((j) => {
         return `
@@ -110,13 +110,10 @@ export default class ProductForm {
   }
 
   getImages (data) {
-
-    if (!this.productId)
+    if (!this.productId && data.images !== undefined)
     {
       return ''
     }
-
-    if (data.images !== undefined) {
     return `
     <ul class="sortable-list">
       ${data.images.map((item) => {
@@ -135,7 +132,7 @@ export default class ProductForm {
         </li>
       `
     }).join("")}
-    </ul>`}
+    </ul>`
   }
 
   async render () {
@@ -153,27 +150,61 @@ export default class ProductForm {
 
     this.renderForm()
 
-    this.initEventListeners();
-
     return this.element
   }
 
   renderForm () {
     const wrapper = document.createElement(`div`);
-
     wrapper.innerHTML = this.getTemplate(this.formData, this.categories);
     this.element = wrapper.firstElementChild;
     this.subElements = this.getSubElements(this.element);
+    this.initEventListeners();
   }
 
   initEventListeners() {
-    this.subElements.productForm.addEventListener('change', this.onSubmit);
+      this.subElements.productForm.addEventListener('submit', this.onSubmit);
   }
 
-  onSubmit (event) {
+  onSubmit = event => {
     event.preventDefault();
 
-    this.save();
+    this.save ();
+  }
+
+  dispatchEvent () {
+    const event = this.productId
+    ? new CustomEvent("product-updated")
+      : new CustomEvent("product-saved");
+    this.element.dispatchEvent(event);
+  }
+
+  getFormData() {
+    return {
+      id: this.formData.id,
+      title: this.formData.title,
+      description: this.formData.description,
+      subcategory: this.formData.subcategory,
+      price: this.formData.price,
+      quantity: this.formData.quantity,
+      discount: this.formData.discount,
+      status: this.formData.status,
+      images: this.formData.images,
+    }
+  }
+
+
+  async save () {
+    const formData = this.getFormData()
+    const json = JSON.stringify(formData);
+
+    await fetch(BACKEND_URL + "/api/rest/products", {
+      method: formData.id ? "PATCH" : "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: json,
+      referrer: ''
+    });
+
+    this.dispatchEvent()
   }
 
   async loadDataCategories() {
@@ -207,9 +238,12 @@ export default class ProductForm {
   }
 
   destroy() {
+    this.subElements.productForm.removeEventListener('submit', this.onSubmit);
     this.remove();
     this.element = null;
     this.subElements = {}
+
   }
 
 }
+
