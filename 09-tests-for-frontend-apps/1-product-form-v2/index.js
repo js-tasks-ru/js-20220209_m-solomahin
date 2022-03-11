@@ -32,7 +32,13 @@ export default class ProductForm {
         <div class="form-group form-group__half_left">
           <fieldset>
             <label class="form-label">Название товара</label>
-            <input required="" type="text" name="title" class="form-control" placeholder="Название товара" value = '${products.title}'>
+            <input
+              required=""
+              type="text"
+              name="title"
+              class="form-control"
+              placeholder="Название товара"
+              value = '${products.title}'>
           </fieldset>
         </div>
 
@@ -65,17 +71,35 @@ export default class ProductForm {
         <div class="form-group form-group__half_left form-group__two-col">
           <fieldset>
             <label class="form-label">Цена ($)</label>
-            <input required="" type="number" name="price" class="form-control" placeholder="100" value = "${products.price}">
+            <input
+              required=""
+              type="number"
+              name="price"
+              class="form-control"
+              placeholder="100"
+              value = "${products.price}">
           </fieldset>
           <fieldset>
             <label class="form-label">Скидка ($)</label>
-            <input required="" type="number" name="discount" class="form-control" placeholder="0" value = "${products.discount}">
+            <input
+              required=""
+              type="number"
+              name="discount"
+              class="form-control"
+              placeholder="0"
+              value = "${products.discount}">
           </fieldset>
         </div>
 
         <div class="form-group form-group__part-half">
           <label class="form-label">Количество</label>
-          <input required="" type="number" class="form-control" name="quantity" placeholder="1" value = "${products.quantity}">
+          <input
+            required=""
+            type="number"
+            class="form-control"
+            name="quantity"
+            placeholder="1"
+            value = "${products.quantity}">
         </div>
 
         <div class="form-group form-group__part-half">
@@ -278,81 +302,3 @@ export default class ProductForm {
   }
 
 }
-
-//
-//   class a {
-//     constructor(e) {
-//       return l(this, "elem", void 0), l(this, "elems", {}), this.productId = e, this
-//     }
-//
-//     async render() {
-//       this.elem = Object(r.a)(`\n      <div class="product-form">\n        <form data-elem="productForm" class="form-grid">\n        <div class="form-group form-group__half_left">\n          <fieldset>\n            <label class="form-label">Название товара</label>\n            <input required type="text" name="title" class="form-control" placeholder="Название товара">\n          </fieldset>\n        </div>\n        <div class="form-group form-group__wide">\n          <label class="form-label">Описание</label>\n          <textarea required\n            class="form-control"\n            name="description"\n            placeholder="Описание товара"></textarea>\n        </div>\n        <div class="form-group form-group__wide" data-elem="sortable-list-container">\n          <label class="form-label">Фото</label>\n          <div data-elem="imageListContainer"></div>\n          <button type="button" name="uploadImage" class="button-primary-outline fit-content"><span>Загрузить</span></button>\n        </div>\n        <div class="form-group form-group__half_left">\n          <label class="form-label">Категория</label>\n          <select class="form-control" name="category"></select>\n        </div>\n        <div class="form-group form-group__half_left form-group__two-col">\n          <fieldset>\n            <label class="form-label">Цена ($)</label>\n            <input required type="number" name="price" class="form-control" placeholder="100">\n          </fieldset>\n          <fieldset>\n            <label class="form-label">Скидка ($)</label>\n            <input required type="number" name="discount" class="form-control" placeholder="0">\n          </fieldset>\n        </div>\n        <div class="form-group form-group__part-half">\n          <label class="form-label">Количество</label>\n          <input required type="number" class="form-control" name="quantity" placeholder="1">\n        </div>\n        <div class="form-group form-group__part-half">\n          <label class="form-label">Статус</label>\n          <select class="form-control" name="status">\n            <option value="1">Активен</option>\n            <option value="0">Неактивен</option>\n          </select>\n        </div>\n        <div class="form-buttons">\n          <button type="submit" name="save" class="button-primary-outline is-loading">\n            ${this.productId ? "Сохранить" : "Добавить"} товар\n          </button>\n        </div>\n      </form>\n      </div>\n    `);
-//       for (let e of this.elem.querySelectorAll("[data-elem]")) this.elems[e.dataset.elem] = e;
-//       if (this.productId) {
-//         let e = await Object(n.a)(`https://course-js.javascript.ru/api/rest/products?id=${this.productId}`);
-//         if (!e || 0 === e.length) return this.elem.innerHTML = '<h1 class="page-title">Страница не найдена</h1>\n        <p>Извините, данный товар не существует</p>', this.elem;
-//         this.product = e[0]
-//       }
-//       if (this.product) {
-//         const {title: e, description: t, price: i, discount: s, quantity: r, status: n} = this.product;
-//         this.elems.productForm.title.value = e, this.elems.productForm.description.value = t, this.elems.productForm.price.value = i, this.elems.productForm.discount.value = s, this.elems.productForm.quantity.value = r, this.elems.productForm.status.value = n
-//       } else this.elems.productForm.price.value = 100, this.elems.productForm.discount.value = 0, this.elems.productForm.quantity.value = 1;
-//       let e = this.renderImageListItems();
-//       this.imageList = new s.a({items: e}), this.elems.imageListContainer.append(this.imageList.elem), this.elems.productForm.uploadImage.onclick = e => this.uploadImage(e);
-//       let t = await Object(n.a)("https://course-js.javascript.ru/api/rest/categories?_sort=weight&_refs=subcategory"),
-//         i = [];
-//       for (let e of t) for (let t of e.subcategories) i.push(new Option(e.title + " > " + t.title, t.id));
-//       return this.elems.productForm.category.append(...i), this.product && (this.elems.productForm.category.value = this.product.subcategory), this.elems.productForm.save.classList.remove("is-loading"), this.elems.productForm.addEventListener("submit", e => this.onSubmit(e)), this.elem
-//     }
-//
-//     onSubmit(e) {
-//       e.preventDefault(), this.save()
-//     }
-//
-//     getFormData() {
-//       const {productForm: e} = this.elems, {
-//         title: t,
-//         description: i,
-//         category: s,
-//         price: r,
-//         quantity: n,
-//         discount: o,
-//         status: l
-//       } = e;
-//       return {
-//         id: this.productId,
-//         title: t.value,
-//         description: i.value,
-//         subcategory: s.value,
-//         price: parseInt(r.value, 10),
-//         quantity: parseInt(n.value, 10),
-//         discount: parseInt(o.value, 10),
-//         status: parseInt(l.value, 10),
-//         images: []
-//       }
-//     }
-//
-//     prepareImagesData() {
-//       const e = [],
-//         t = Array.from(new FormData(this.elems.productForm)).filter(e => "url" === e[0] || "source" === e[0]);
-//       for (let i = 0; i < t.length; i++) e.push({url: t[i][1], source: t[i + 1][1]}), i++;
-//       return e
-//     }
-//
-//     async save() {
-//       const e = this.getFormData();
-//       e.images = this.prepareImagesData();
-//       let t = await Object(n.a)("https://course-js.javascript.ru/api/rest/products", {
-//         method: e.id ? "PATCH" : "PUT",
-//         headers: {"Content-Type": "application/json"},
-//         body: JSON.stringify(e)
-//       });
-//       const i = this.productId ? new CustomEvent("product-saved") : new CustomEvent("product-updated", {detail: t.id});
-//       this.elem.dispatchEvent(i)
-//     }
-//
-//     destroy() {
-//       this.elem.remove()
-//     }
-//
-
