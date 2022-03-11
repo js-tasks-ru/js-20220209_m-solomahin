@@ -2,6 +2,7 @@
 import escapeHtml from './utils/escape-html.js';
 import fetchJson from './utils/fetch-json.js';
 
+
 const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
@@ -56,11 +57,10 @@ export default class ProductForm {
           <label class="form-label">Фото</label>
           <div data-element="imageListContainer">
 
-              ${this.getImages(products)}
+              ${this.getImagesList(products)}
 
           </div>
-          <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
-          <input type="file" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></input>
+          <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></input>
         </div>
 
         <div class="form-group form-group__half_left">
@@ -135,29 +135,33 @@ export default class ProductForm {
     </select>`
   }
 
-  getImages(data) {
+  getImagesList(data) {
     if (!this.productId && data.images !== undefined) {
       return ''
     }
     return `
     <ul class="sortable-list">
       ${data.images.map((item) => {
-      return `
+        this.getImage(item.url, item.source)
+    }).join("")}
+    </ul>`
+  }
+
+  getImage (url, source) {
+    return `
         <li class="products-edit__imagelist-item sortable-list__item" style="">
-          <input type="hidden" name="url" value="${item.url}">
-          <input type="hidden" name="source" value=${item.source}>
+          <input type="hidden" name="url" value="${url}">
+          <input type="hidden" name="source" value=${source}>
           <span>
             <img src="icon-grab.svg" data-grab-handle="" alt="grab">
-            <img class="sortable-table__cell-img" alt="Image" src="${item.url}">
-            <span>${item.source}</span>
+            <img class="sortable-table__cell-img" alt="Image" src="${url}">
+            <span>${source}</span>
           </span>
           <button type="button">
             <img src="icon-trash.svg" data-delete-handle="" alt="delete">
           </button>
         </li>
       `
-    }).join("")}
-    </ul>`
   }
 
   async render() {
@@ -187,7 +191,60 @@ export default class ProductForm {
   }
 
   initEventListeners() {
-    this.subElements.productForm.addEventListener('submit', this.onSubmit);
+    const {productForm, imageListContainer} = this.subElements;
+    productForm.addEventListener('submit', this.onSubmit);
+    productForm.addEventListener('pointerdown', this.uploadImage);
+    imageListContainer.addEventListener('pointerdown', this.deleteImage)
+  }
+
+  deleteImage(e) {
+    const deleteBtn = e.target.closest("button")
+    if (!deleteBtn) return;
+    e.target.closest("li").remove()
+  }
+
+   uploadImage = async (e) => {
+    const uploadImage = e.target.closest("button[name = uploadImage]");
+    if (!uploadImage) return;
+
+    const fileInput = document.createElement("input")
+    fileInput.type = "file"
+    fileInput.accept = "image/*"
+    fileInput.onchange = async () => {
+      const list = this.subElements.imageListContainer.children[0]
+      uploadImage.classList.add("is-loading")
+      try {
+        const [file] = fileInput.files;
+        const result = await this.upload(file);
+
+        const currentImage = this.getImage(result.data.link, file.name)
+        list.insertAdjacentHTML("beforeend", currentImage)
+        uploadImage.classList.remove("is-loading")
+
+      } catch (error) {
+        alert("Изображение не загружено");
+      }
+    }
+    fileInput.click()
+
+  }
+
+  async upload (file) {
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const response = await fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: {
+          Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
+        },
+        body: formData,
+        referrer: ''
+      });
+      return await response.json();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   onSubmit = event => {
@@ -197,13 +254,10 @@ export default class ProductForm {
   }
 
   async save() {
-
     const formData = this.getFormData()
     const json = JSON.stringify(formData);
     formData.images = this.prepareImagesData()
 
-
-    console.log(formData)
     const resolve = await fetch(BACKEND_URL + "/api/rest/products", {
       method: this.productId ? "PATCH" : "POST",
       headers: {"Content-Type": "application/json"},
@@ -211,8 +265,6 @@ export default class ProductForm {
       referrer: ''
     });
 
-    const temp = await resolve.json()
-    console.log()
     this.dispatchEvent()
   }
 
@@ -233,10 +285,10 @@ export default class ProductForm {
       title: temp.title.value,
       description: temp.description.value,
       subcategory: temp.subcategory.value,
-      price: parseInt(temp.price.value,10),
-      quantity: parseInt(temp.quantity.value,10),
-      discount: parseInt(temp.discount.value,10),
-      status: parseInt(temp.status.value,10),
+      price: parseInt(temp.price.value, 10),
+      quantity: parseInt(temp.quantity.value, 10),
+      discount: parseInt(temp.discount.value, 10),
+      status: parseInt(temp.status.value, 10),
       images: []
     }
   }
@@ -246,9 +298,9 @@ export default class ProductForm {
     const currentArray = []
 
     const formData = new FormData(this.subElements.productForm)
-    for(const [name,value] of formData) {
+    for (const [name, value] of formData) {
       if (name === "url" || name === "source") {
-        arrayOfURL.push({name,value})
+        arrayOfURL.push({name, value})
       }
     }
 
@@ -261,7 +313,7 @@ export default class ProductForm {
       i++;
     }
     return currentArray
-    }
+  }
 
   async loadDataCategories() {
     const categories = new URL(BACKEND_URL + `/api/rest/categories`);
