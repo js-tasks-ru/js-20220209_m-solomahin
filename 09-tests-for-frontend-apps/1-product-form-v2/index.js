@@ -9,7 +9,7 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 export default class ProductForm {
 
   element;
-  subElements;
+  subElements = {};
   defaultFormData = {
     title: '',
     description: '',
@@ -23,7 +23,6 @@ export default class ProductForm {
 
   constructor(productId) {
     this.productId = productId;
-
   }
 
   getTemplate(products, categories) {
@@ -138,18 +137,21 @@ export default class ProductForm {
   }
 
   getImagesList(data) {
+
     if (!this.productId && data.images !== undefined) {
       return ''
     }
+
     return `
     <ul class="sortable-list">
       ${data.images.map((item) => {
-      this.getImage(item.url, item.source)
+        return this.getImage(item.url, item.source)
     }).join("")}
     </ul>`
   }
 
   getImage(url, source) {
+
     return `
         <li class="products-edit__imagelist-item sortable-list__item" style="">
           <input type="hidden" name="url" id="url" value="${url}">
