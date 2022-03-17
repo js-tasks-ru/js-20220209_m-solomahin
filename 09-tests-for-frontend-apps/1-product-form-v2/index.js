@@ -1,4 +1,4 @@
-//import SortableList from '../../2-sortable-list/src/index.js';
+
 import escapeHtml from './utils/escape-html.js';
 import fetchJson from './utils/fetch-json.js';
 
@@ -16,13 +16,14 @@ export default class ProductForm {
     quantity: 1,
     subcategory: '',
     status: 1,
-    images: [],
     price: 100,
-    discount: 0
+    discount:0,
+    images:[]
   };
 
   constructor(productId) {
     this.productId = productId;
+
   }
 
   getTemplate(products, categories) {
@@ -36,7 +37,7 @@ export default class ProductForm {
             <input
               required=""
               type="text"
-              name="title"
+              id="title"
               class="form-control"
               placeholder="Название товара"
               value = '${products.title}'>
@@ -48,7 +49,7 @@ export default class ProductForm {
           <textarea
             required=""
             class="form-control"
-            name="description"
+            id="description"
             data-element="productDescription"
             placeholder="Описание товара">${products.description}</textarea>
         </div>
@@ -74,7 +75,7 @@ export default class ProductForm {
             <input
               required=""
               type="number"
-              name="price"
+              id="price"
               class="form-control"
               placeholder="100"
               value = "${products.price}">
@@ -84,7 +85,7 @@ export default class ProductForm {
             <input
               required=""
               type="number"
-              name="discount"
+              id="discount"
               class="form-control"
               placeholder="0"
               value = "${products.discount}">
@@ -97,14 +98,14 @@ export default class ProductForm {
             required=""
             type="number"
             class="form-control"
-            name="quantity"
+            id="quantity"
             placeholder="1"
             value = "${products.quantity}">
         </div>
 
         <div class="form-group form-group__part-half">
           <label class="form-label">Статус</label>
-          <select class="form-control" name="status">
+          <select class="form-control" id="status">
             <option value="1">Активен</option>
             <option value="0">Неактивен</option>
           </select>
@@ -118,6 +119,7 @@ export default class ProductForm {
 
       </form>
   </div>
+
     `
   }
 
@@ -142,16 +144,16 @@ export default class ProductForm {
     return `
     <ul class="sortable-list">
       ${data.images.map((item) => {
-        this.getImage(item.url, item.source)
+      this.getImage(item.url, item.source)
     }).join("")}
     </ul>`
   }
 
-  getImage (url, source) {
+  getImage(url, source) {
     return `
         <li class="products-edit__imagelist-item sortable-list__item" style="">
-          <input type="hidden" name="url" value="${url}">
-          <input type="hidden" name="source" value=${source}>
+          <input type="hidden" name="url" id="url" value="${url}">
+          <input type="hidden" name="source" id="source" value=${source}>
           <span>
             <img src="icon-grab.svg" data-grab-handle="" alt="grab">
             <img class="sortable-table__cell-img" alt="Image" src="${url}">
@@ -194,7 +196,7 @@ export default class ProductForm {
     const {productForm, imageListContainer} = this.subElements;
     productForm.addEventListener('submit', this.onSubmit);
     productForm.addEventListener('pointerdown', this.uploadImage);
-    imageListContainer.addEventListener('pointerdown', this.deleteImage)
+    imageListContainer.addEventListener('pointerdown', this.deleteImage);
   }
 
   deleteImage(e) {
@@ -203,7 +205,7 @@ export default class ProductForm {
     e.target.closest("li").remove()
   }
 
-   uploadImage = async (e) => {
+  uploadImage = async (e) => {
     const uploadImage = e.target.closest("button[name = uploadImage]");
     if (!uploadImage) return;
 
@@ -229,7 +231,7 @@ export default class ProductForm {
 
   }
 
-  async upload (file) {
+  async upload(file) {
     const formData = new FormData();
     formData.append("image", file);
     try {
@@ -255,8 +257,8 @@ export default class ProductForm {
 
   async save() {
     const formData = this.getFormData()
-    const json = JSON.stringify(formData);
     formData.images = this.prepareImagesData()
+    const json = JSON.stringify(formData);
 
     const resolve = await fetch(BACKEND_URL + "/api/rest/products", {
       method: this.productId ? "PATCH" : "POST",
@@ -298,6 +300,7 @@ export default class ProductForm {
     const currentArray = []
 
     const formData = new FormData(this.subElements.productForm)
+    console.log(formData.get("url"))
     for (const [name, value] of formData) {
       if (name === "url" || name === "source") {
         arrayOfURL.push({name, value})
@@ -311,7 +314,9 @@ export default class ProductForm {
       }
       currentArray.push(w)
       i++;
+
     }
+
     return currentArray
   }
 

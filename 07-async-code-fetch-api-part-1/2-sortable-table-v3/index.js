@@ -27,7 +27,7 @@ export default class SortableTable {
     this.data = data
     this.sorted = sorted
     this.render();
-    this.sort(this.sorted.id, this.sorted.order);
+
   }
 
   getTemplate(data = []) {
@@ -107,11 +107,11 @@ export default class SortableTable {
     const wrapper = document.createElement(`div`);
     wrapper.innerHTML = this.getTemplate();
     this.element = wrapper.firstElementChild;
-
     this.subElements = this.getSubElements(this.element);
     this.initEventListeners()
     this.subElements.body.style.display = "none"
     this.subElements.loading.style.display = "block"
+    await this.sort(this.sorted.id, this.sorted.order);
   }
 
   initEventListeners() {

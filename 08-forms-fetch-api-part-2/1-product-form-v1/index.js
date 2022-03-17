@@ -26,8 +26,7 @@ export default class ProductForm {
   getTemplate(products, categories) {
     return `
     <div class="product-form">
-      <form data-element="productForm" name = "tmp" class="form-grid">
-
+      <form data-element="productForm" class="form-grid">
         <div class="form-group form-group__half_left">
           <fieldset>
             <label class="form-label">Название товара</label>
@@ -159,10 +158,14 @@ export default class ProductForm {
     this.element = wrapper.firstElementChild;
     this.subElements = this.getSubElements(this.element);
     this.initEventListeners();
+
+
+
   }
 
   initEventListeners() {
-      this.subElements.productForm.addEventListener('submit', this.onSubmit);
+    const {productForm} = this.subElements;
+    productForm.addEventListener('submit', this.onSubmit);
   }
 
   onSubmit = event => {
