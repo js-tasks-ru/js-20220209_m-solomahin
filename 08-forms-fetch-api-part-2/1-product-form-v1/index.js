@@ -1,27 +1,28 @@
-import escapeHtml from './utils/escape-html.js';
-import fetchJson from './utils/fetch-json.js';
+import escapeHtml from "./utils/escape-html.js";
+import fetchJson from "./utils/fetch-json.js";
 
-const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
-const BACKEND_URL = 'https://course-js.javascript.ru';
+const IMGUR_CLIENT_ID = "28aaa2e823b03b1";
+const BACKEND_URL = "https://course-js.javascript.ru";
 
 export default class ProductForm {
-
   element;
   subElements;
   defaultFormData = {
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     quantity: 1,
-    subcategory: '',
+    subcategory: "",
     status: 1,
     images: [],
     price: 100,
-    discount: 0
+    discount: 0,
   };
 
-  constructor (productId) {
+  constructor(productId) {
     this.productId = productId;
   }
+
+  
 
   getTemplate(products, categories) {
     return `
@@ -30,7 +31,9 @@ export default class ProductForm {
         <div class="form-group form-group__half_left">
           <fieldset>
             <label class="form-label">Название товара</label>
-            <input required="" type="text" id="title" class="form-control" placeholder="Название товара" value = '${products.title}'>
+            <input required="" type="text" id="title" class="form-control" placeholder="Название товара" value = '${
+              products.title
+            }'>
           </fieldset>
         </div>
 
@@ -62,17 +65,23 @@ export default class ProductForm {
         <div class="form-group form-group__half_left form-group__two-col">
           <fieldset>
             <label class="form-label">Цена ($)</label>
-            <input required="" type="number" id="price" class="form-control" placeholder="100" value = "${products.price}">
+            <input required="" type="number" id="price" class="form-control" placeholder="100" value = "${
+              products.price
+            }">
           </fieldset>
           <fieldset>
             <label class="form-label">Скидка ($)</label>
-            <input required="" type="number" id="discount" class="form-control" placeholder="0" value = "${products.discount}">
+            <input required="" type="number" id="discount" class="form-control" placeholder="0" value = "${
+              products.discount
+            }">
           </fieldset>
         </div>
 
         <div class="form-group form-group__part-half">
           <label class="form-label">Количество</label>
-          <input required="" type="number" class="form-control" id="quantity" placeholder="1" value = "${products.quantity}">
+          <input required="" type="number" class="form-control" id="quantity" placeholder="1" value = "${
+            products.quantity
+          }">
         </div>
 
         <div class="form-group form-group__part-half">
@@ -91,35 +100,39 @@ export default class ProductForm {
 
       </form>
   </div>
-    `
+    `;
   }
 
   getSelectCategories(categories) {
     return `
-    <select class="form-control" id="subcategory">
-      ${categories.map((item) => {
-      return item.subcategories.map((j) => {
-        return `
+    <select class="form-control" name="subcategory" id="subcategory">
+      ${categories
+        .map((item) => {
+          return item.subcategories
+            .map((j) => {
+              return `
           <option
             value=${j.id}>${item.title} &gt; ${j.title}
-          </option>`
-      }).join("")
-    }).join("")}
-    </select>`
+          </option>`;
+            })
+            .join("");
+        })
+        .join("")}
+    </select>`;
   }
 
-  getImages (data) {
-    if (!this.productId && data.images !== undefined)
-    {
-      return ''
+  getImages(data) {
+    if (!this.productId && data.images !== undefined) {
+      return "";
     }
     return `
     <ul class="sortable-list">
-      ${data.images.map((item) => {
-      return `
+      ${data.images
+        .map((item) => {
+          return `
         <li class="products-edit__imagelist-item sortable-list__item" style="">
-          <input type="hidden" name="url" value="${item.url}">
-          <input type="hidden" name="source" value=${item.source}>
+          <input type="hidden" id="url" value="${item.url}">
+          <input type="hidden" id="source" value=${item.source}>
           <span>
             <img src="icon-grab.svg" data-grab-handle="" alt="grab">
             <img class="sortable-table__cell-img" alt="Image" src="${item.url}">
@@ -129,54 +142,55 @@ export default class ProductForm {
             <img src="icon-trash.svg" data-delete-handle="" alt="delete">
           </button>
         </li>
-      `
-    }).join("")}
-    </ul>`
+      `;
+        })
+        .join("")}
+    </ul>`;
   }
 
-  async render () {
+  async render() {
     const categoriesPromise = this.loadDataCategories();
 
     const productPromise = this.productId
       ? this.loadDataProducts(this.productId)
       : Promise.resolve([this.defaultFormData]);
 
-    const [categoriesData, productResponse] = await Promise.all([categoriesPromise, productPromise])
-    const [productData] = productResponse
+    const [categoriesData, productResponse] = await Promise.all([
+      categoriesPromise,
+      productPromise,
+    ]);
+    const [productData] = productResponse;
 
-    this.formData = productData
-    this.categories = categoriesData
+    this.formData = productData;
+    this.categories = categoriesData;
 
-    this.renderForm()
+    this.renderForm();
 
-    return this.element
+    return this.element;
   }
 
-  renderForm () {
+  renderForm() {
     const wrapper = document.createElement(`div`);
     wrapper.innerHTML = this.getTemplate(this.formData, this.categories);
     this.element = wrapper.firstElementChild;
     this.subElements = this.getSubElements(this.element);
     this.initEventListeners();
-
-
-
   }
 
   initEventListeners() {
-    const {productForm} = this.subElements;
-    productForm.addEventListener('submit', this.onSubmit);
+    const { productForm } = this.subElements;
+    productForm.addEventListener("submit", this.onSubmit);
   }
 
-  onSubmit = event => {
+  onSubmit = (event) => {
     event.preventDefault();
 
-    this.save ();
-  }
+    this.save();
+  };
 
-  dispatchEvent () {
+  dispatchEvent() {
     const event = this.productId
-    ? new CustomEvent("product-updated")
+      ? new CustomEvent("product-updated")
       : new CustomEvent("product-saved");
     this.element.dispatchEvent(event);
   }
@@ -192,34 +206,33 @@ export default class ProductForm {
       discount: this.formData.discount,
       status: this.formData.status,
       images: this.formData.images,
-    }
+    };
   }
 
-
-  async save () {
-    const formData = this.getFormData()
+  async save() {
+    const formData = this.getFormData();
     const json = JSON.stringify(formData);
 
     await fetch(BACKEND_URL + "/api/rest/products", {
       method: formData.id ? "PATCH" : "PUT",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: json,
-      referrer: ''
+      referrer: "",
     });
 
-    this.dispatchEvent()
+    this.dispatchEvent();
   }
 
   async loadDataCategories() {
     const categories = new URL(BACKEND_URL + `/api/rest/categories`);
-    categories.searchParams.set('_sort', 'weight');
-    categories.searchParams.set('_refs', 'subcategory');
+    categories.searchParams.set("_sort", "weight");
+    categories.searchParams.set("_refs", "subcategory");
     return await fetchJson(categories);
   }
 
   async loadDataProducts(id) {
     const formData = new URL(BACKEND_URL + `/api/rest/products`);
-    formData.searchParams.set('id', `${id}`);
+    formData.searchParams.set("id", `${id}`);
     return await fetchJson(formData);
   }
 
@@ -231,7 +244,7 @@ export default class ProductForm {
       const name = subElement.dataset.element;
       result[name] = subElement;
     }
-    return result
+    return result;
   }
 
   remove() {
@@ -241,12 +254,9 @@ export default class ProductForm {
   }
 
   destroy() {
-    this.subElements.productForm.removeEventListener('submit', this.onSubmit);
+    this.subElements.productForm.removeEventListener("submit", this.onSubmit);
     this.remove();
     this.element = null;
-    this.subElements = {}
-
+    this.subElements = {};
   }
-
 }
-

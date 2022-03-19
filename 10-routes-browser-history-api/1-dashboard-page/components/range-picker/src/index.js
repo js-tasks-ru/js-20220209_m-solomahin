@@ -32,7 +32,6 @@ export default class RangePicker {
     const to = RangePicker.formatDate(this.selected.to);
 
     return `<div class="rangepicker">
-
       <div class="rangepicker__input" data-element="input">
         <span data-element="from">${from}</span> -
         <span data-element="to">${to}</span>
@@ -93,14 +92,12 @@ export default class RangePicker {
     showDate2.setMonth(showDate2.getMonth() + 1);
 
     selector.innerHTML = `
-
       <div class="rangepicker__selector-arrow"></div>
       <div class="rangepicker__selector-control-left"></div>
       <div class="rangepicker__selector-control-right"></div>
       ${this.renderCalendar(showDate1)}
       ${this.renderCalendar(showDate2)}
     `;
-
 
     const controlLeft = selector.querySelector('.rangepicker__selector-control-left');
     const controlRight = selector.querySelector('.rangepicker__selector-control-right');
@@ -169,7 +166,6 @@ export default class RangePicker {
     const monthStr = date.toLocaleString('ru', {month: 'long'});
 
     let table = `<div class="rangepicker__calendar">
-
       <div class="rangepicker__month-indicator">
         <time datetime=${monthStr}>${monthStr}</time>
       </div>
@@ -182,7 +178,6 @@ export default class RangePicker {
     // first day of month starts after a space
     // * * * 1 2 3 4
     table += `
-
       <button type="button"
         class="rangepicker__cell"
         data-value="${date.toISOString()}"
@@ -194,13 +189,11 @@ export default class RangePicker {
 
     while (date.getMonth() === showDate.getMonth()) {
       table += `
-
         <button type="button"
           class="rangepicker__cell"
           data-value="${date.toISOString()}">
             ${date.getDate()}
         </button>`;
-
 
       date.setDate(date.getDate() + 1);
     }
@@ -254,7 +247,7 @@ export default class RangePicker {
 
   remove() {
     this.element.remove();
-    // TODO: Warning! To remove listener  MUST be passes the same event phase
+    // TODO: Warning! To remove listener MUST be passes the same event phase
     document.removeEventListener('click', this.onDocumentClick, true);
   }
 
